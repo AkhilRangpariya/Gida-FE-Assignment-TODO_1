@@ -17,16 +17,22 @@ function App() {
   useEffect(() => {
     const url = "https://jsonplaceholder.typicode.com/todos";
     const getApiCall = async () => {
-      await fetch(url)
-        .then((response) => response.json())
-        .then((repos) => {
-          setTodoApiData(repos); 
-          toast.success("Todo get successfully!");
-        })
-        .catch((err) => {
-          console.log("Error adding todo");
-          toast.error("Failed to get todo. Please try again.");
-        });
+      try {
+        await fetch(url)
+          .then((response) => response.json())
+          .then((repos) => {
+            setTodoApiData(repos);
+            toast.success("Todo get successfully!");
+          })
+          .catch((err) => {
+            console.log("Error adding todo");
+            toast.error("Failed to get todo. Please try again.");
+          });
+      }
+      catch{
+        console.log("Error adding todo");
+            toast.error("Failed to get todo. Please try again.");
+      }
     };
 
     getApiCall();
@@ -51,7 +57,7 @@ function App() {
           <UpdatedTodoLocalContext.Provider
             value={[updatedTodoLocalStorage, setUpdatedTodoLocalStorage]}
           >
-            <div className="app_div bg-[#f6f6f6] h-full w-full  ">
+            <div className="app_div bg-[#f6f6f6] w-full min-h-screen flex flex-col">
               <HeaderLayout />
               <BodyLayout />
             </div>
