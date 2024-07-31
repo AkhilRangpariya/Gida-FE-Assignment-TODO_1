@@ -1,24 +1,75 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import {
+  TodoContext,
+  TodoLocalContext,
+  UpdatedTodoLocalContext,
+} from "./localStorage/TodoContext";
+import BodyLayout from "./mainDesing/BodyLayout";
+import HeaderLayout from "./mainDesing/HeaderLayout";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 function App() {
+  const [todoApiData, setTodoApiData] = useState(null);
+  const [todoLocalStorage, setTodoLocalStorage] = useState(null);
+  const [updatedTodoLocalStorage, setUpdatedTodoLocalStorage] = useState(null);
+
+  useEffect(() => {
+    const url = "https://jsonplaceholder.typicode.com/todos";
+    const getApiCall = async () => {
+      await fetch(url)
+        .then((response) => response.json())
+        .then((repos) => {
+          setTodoApiData(repos); 
+          toast.success("Todo get successfully!");
+        })
+        .catch((err) => {
+          console.log("Error adding todo");
+          toast.error("Failed to get todo. Please try again.");
+        });
+    };
+
+    getApiCall();
+  }, []);
+
+  useEffect(() => {
+    if (todoApiData) {
+      let sliceLocalData = todoApiData.slice(0, 20);
+      setTodoLocalStorage(sliceLocalData);
+      setUpdatedTodoLocalStorage(sliceLocalData);
+    } else {
+      console.log(console.log("local storage empty."));
+    }
+  }, [todoApiData]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <TodoContext.Provider value={todoApiData}>
+        <TodoLocalContext.Provider
+          value={[todoLocalStorage, setTodoLocalStorage]}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <UpdatedTodoLocalContext.Provider
+            value={[updatedTodoLocalStorage, setUpdatedTodoLocalStorage]}
+          >
+            <div className="app_div bg-[#f6f6f6] h-full w-full  ">
+              <HeaderLayout />
+              <BodyLayout />
+            </div>
+          </UpdatedTodoLocalContext.Provider>
+        </TodoLocalContext.Provider>
+      </TodoContext.Provider>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
   );
 }
 
